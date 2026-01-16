@@ -11,9 +11,8 @@ vim.o.confirm = true
 vim.o.tabstop = 2
 vim.o.shiftwidth = 2
 
-vim.keymap.set("n", "<leader>e", ":Explore<CR>")
-vim.keymap.set("v", "<leader>c", '"+y')
-vim.keymap.set({ "n", "v" }, "d", '"_d')
+require "configs.lazy"
+require "keymap"
+require "lsp"
 
-require("config.lazy")
-require("lsp")
+vim.cmd [[colorscheme habamax]]

@@ -1,35 +1,7 @@
-local function on_attach(_, bufnr)
-	local map = vim.keymap.set
-
-	local function map_opts(desc)
-		return { buffer = bufnr, desc = "LSP: " .. desc }
-	end
-
-	local floating_windown_opts = {
-		border = "single",
-		max_width = 80,
-	}
-
-	map("n", "<leader>r", vim.lsp.buf.rename, map_opts("rename"))
-	map("n", "K", function() return vim.lsp.buf.hover(floating_windown_opts) end, map_opts("hover"))
-
-	local builtin = require "telescope.builtin"
-
-	map('n', '<leader>ff', builtin.find_files, {})
-	map('n', '<leader>f', builtin.current_buffer_fuzzy_find, {})
-	map('n', '<leader>fz', builtin.live_grep, {})
-	map('n', 'gr', builtin.lsp_references, {})
-	map('n', 'gt', builtin.lsp_type_definitions, {})
-	map('n', 'gi', builtin.lsp_implementations, {})
-	map('n', 'gd', builtin.lsp_definitions, {})
-end
-
 vim.lsp.config('lua_ls', {
-	on_attach = on_attach,
 })
 
 vim.lsp.config('gopls', {
-	on_attach = on_attach,
 	settings = {
 		gopls = {
 			codelenses = {
@@ -69,6 +41,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 
 vim.diagnostic.config({
+	update_in_insert = true,
 	severity_sort = true,
 	float = { border = 'rounded', source = 'if_many' },
 	underline = { severity = vim.diagnostic.severity.ERROR },
