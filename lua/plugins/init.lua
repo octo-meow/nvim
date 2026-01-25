@@ -1,23 +1,21 @@
 return {
+	{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+	{
+		"folke/tokyonight.nvim",
+		lazy = false,
+		priority = 1000,
+		opts = {},
+	},
 	{
 		'mfussenegger/nvim-dap',
-		-- NOTE: And you can specify dependencies as well
 		dependencies = {
-			-- Creates a beautiful debugger UI
 			'rcarriga/nvim-dap-ui',
-
-			-- Required dependency for nvim-dap-ui
 			'nvim-neotest/nvim-nio',
-
-			-- Installs the debug adapters for you
 			'mason-org/mason.nvim',
 			'jay-babu/mason-nvim-dap.nvim',
-
-			-- Add your own debuggers here
 			'leoluz/nvim-dap-go',
 		},
 		config = require("configs.dap")
-		-- opts = require("configs.dap"),
 	},
 	{
 		"neovim/nvim-lspconfig",
@@ -40,6 +38,16 @@ return {
 			'nvim-lua/plenary.nvim',
 			{ 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
 		},
+		config = function()
+			require('telescope').setup({
+				pickers = {
+					find_files = {
+						hidden = true,
+						no_ignore = false,
+					}
+				}
+			})
+		end
 	},
 	{
 		'stevearc/conform.nvim',
@@ -83,6 +91,9 @@ return {
 					enable = true,
 					additional_vim_regex_highlighting = false,
 				},
+				indent = {
+					enable = true,
+				},
 			}
 		end
 	},
@@ -106,7 +117,32 @@ return {
 			"nvim-tree/nvim-web-devicons",
 		},
 		config = function()
-			require("nvim-tree").setup {}
+			require("nvim-tree").setup {
+				filters = {
+					dotfiles = false,
+				},
+				disable_netrw = true,
+				hijack_cursor = true,
+				sync_root_with_cwd = true,
+				respect_buf_cwd = true,
+				view = {
+					width = 30,
+					preserve_window_proportions = true,
+				},
+				git = {
+					enable = true,
+					ignore = false,
+				}, diagnostics = {
+				enable = true,
+				show_on_dirs = true,
+				show_on_open_dirs = true,
+				debounce_delay = 100,
+				severity = {
+					min = vim.diagnostic.severity.ERROR,
+					max = vim.diagnostic.severity.ERROR,
+				},
+			},
+			}
 		end,
 	},
 	{
@@ -133,8 +169,99 @@ return {
 		opts = {},
 	},
 	{
+		"lewis6991/gitsigns.nvim",
+		version = "*",
+		config = function()
+			require("gitsigns").setup({})
+		end
+	},
+	{
 		"Yu-Leo/gosigns.nvim",
 		ft = "go",
 		cmd = { "GosignsEnable", "GosignsDisable", "GosignsToggle" },
 	},
+	-- {
+	-- 	'akinsho/bufferline.nvim',
+	-- 	version = "*",
+	-- 	dependencies = 'nvim-tree/nvim-web-devicons',
+	-- 	config = function()
+	-- 		require("configs.bufferline")
+	-- 	end,
+	-- },
+	{
+		"rmagatti/auto-session",
+		lazy = false,
+
+		---enables autocomplete for opts
+		---@module "auto-session"
+		---@type AutoSession.Config
+		opts = {
+			suppressed_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
+			-- log_level = 'debug',
+		},
+	},
+	{
+		'nvim-mini/mini.statusline',
+		version = '*',
+		config = function()
+			require("mini.statusline").setup({})
+		end
+	},
+	{
+		"sindrets/diffview.nvim",
+		cmd = { "DiffviewOpen", "DiffviewFileHistory", "DiffviewClose" },
+		config = function()
+			require("configs.diffview")
+		end,
+	},
+	---@type LazySpec
+	{
+		"mikavilpas/yazi.nvim",
+		version = "*", -- use the latest stable version
+		event = "VeryLazy",
+		dependencies = {
+			{ "nvim-lua/plenary.nvim", lazy = true },
+		},
+		keys = {
+			-- 👇 in this section, choose your own keymappings!
+			{
+				"<leader>;",
+				mode = { "n", "v" },
+				"<cmd>Yazi<cr>",
+				desc = "Open yazi at the current file",
+			},
+			{
+				-- Open in the current working directory
+				"<leader>cw",
+				"<cmd>Yazi cwd<cr>",
+				desc = "Open the file manager in nvim's working directory",
+			},
+			{
+				"<c-up>",
+				"<cmd>Yazi toggle<cr>",
+				desc = "Resume the last yazi session",
+			},
+		},
+		---@type YaziConfig | {}
+		opts = {
+			-- if you want to open yazi instead of netrw, see below for more info
+			open_for_directories = false,
+			keymaps = {
+				show_help = "<f1>",
+			},
+		},
+		-- 👇 if you use `open_for_directories=true`, this is recommended
+		init = function()
+			-- mark netrw as loaded so it's not loaded at all.
+			--
+			-- More details: https://github.com/mikavilpas/yazi.nvim/issues/802
+			vim.g.loaded_netrwPlugin = 1
+		end,
+	},
+	{
+		"ThePrimeagen/harpoon",
+		config = function()
+			require("harpoon").setup({})
+		end
+	}
 }
