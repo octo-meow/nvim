@@ -9,7 +9,7 @@ local dapConfig = function()
 					"scopes",
 					"watches",
 				},
-				size = 10,
+				size = 80,
 				position = "right",
 			},
 		},

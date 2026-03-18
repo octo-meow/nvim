@@ -1,12 +1,12 @@
 local map = vim.keymap.set
 
 --< misc
-map("n", "<leader>e", ":Yazi<CR>")
-map("n", "<leader>sf", function()
-	require("nvim-tree.api").tree.open { find_file = true, update_root = true }
-end)
+map("n", "<leader>;", ":Yazi<CR>")
+map("n", "<leader>'", ":Yazi cwd<CR>")
+map("n", "<leader>L", ":cclose<CR>")
 
-map("v", "<leader>c", '"+y')
+map("v", "y", '"+y')
+map({ "n", "v" }, "p", '"+p')
 
 map({ "n", "v" }, "d", '"_d')
 map({ "n", "v" }, "c", '"_c')
@@ -18,44 +18,54 @@ map("v", "<A-j>", ":m '>+1<CR>gv=gv")
 map("v", "<A-k>", ":m '<-2<CR>gv=gv")
 
 map('n', '<leader>r', vim.lsp.buf.rename, {})
+map('n', '<leader>gi', vim.lsp.buf.implementation, {})
 
 map('n', 'K', function()
 	return vim.lsp.buf.hover({ border = 'single', max_width = 80 })
 end, {})
+
+-- add new line in normal mode
+map('n', '<leader>o', 'o<ESC>')
+map('n', '<leader>O', 'O<ESC>')
+
+-- move cursor over line
+map("i", "<C-e>", "<C-o>$")
+map("n", "<leader>gg", "0")
+map("n", "<leader>G", "g_")
+
+-- search word in the current window
+-- map("n", "<leader>f", "<c-*>")
+
+-- close buffer wihtout closing of the window
+map("n", "<leader>ww", ":bp<bar>sp<bar>bn<bar>bd<CR>")
+map("n", "<leader>h", ":BufferLineCyclePrev<CR>")
+map("n", "<leader>j", ":BufferLineMovePrev<CR>")
+map("n", "<leader>k", ":BufferLineMoveNext<CR>")
+map("n", "<leader>l", ":BufferLineCycleNext<CR>")
 -->
 
---> Quickfix list
-map("n", "<leader>xd", function()
-	local diagnostics = vim.diagnostic.get(0)
-	local qflist = {}
-	for _, diagnostic in ipairs(diagnostics) do
-		table.insert(qflist, {
-			bufnr = diagnostic.bufnr,
-			lnum = diagnostic.lnum + 1,
-			col = diagnostic.col + 1,
-			text = diagnostic.message,
-			type = diagnostic.severity == vim.diagnostic.severity.ERROR and "E" or "W",
-		})
-	end
-	vim.fn.setqflist(qflist)
-end, { desc = "Send Diagnostics To QF List" })
---<
-
 --< Insert Mode Movement
+map("n", "<leader>w", "<Cmd>wall<CR>", { desc = "Save" })
+map("n", "<leader>q", "<cmd>wqall<CR>", { desc = "Window quit" })
+
+map("n", "q:", "", { desc = "Disable commands history" })
+
+map("n", "n", "nzz", { desc = "Go to next search result" })
+map("n", "N", "Nzz", { desc = "Go to prev search result" })
+
+map("n", "zo", "za", { desc = "Toggle fold" })
+
+-- Better up/down
+map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+map({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
+map({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
+
 map("i", "<C-h>", "<Left>", { desc = "move left" })
 map("i", "<C-j>", "<Down>", { desc = "move down" })
 map("i", "<C-k>", "<Up>", { desc = "move up" })
 map("i", "<C-l>", "<Right>", { desc = "move left" })
 -->
-
--- --< Bufferline
--- map({ "n", "v" }, "<leader>tn", ":BufferLineMoveNext<CR>")
--- map({ "n", "v" }, "<leader>tN", ":BufferLineMovePrev<CR>")
--- map({ "n", "v" }, "<leader>tw", ":BufferLinePickClose<CR>")
--- map({ "n", "v" }, "<leader>n", ":BufferLineCycleNext<CR>")
--- map({ "n", "v" }, "<leader>N", ":BufferLineCyclePrev<CR>")
--- map({ "n", "v" }, "<leader>tp", ":BufferLineTogglePin<CR>")
--- -->
 
 --< Dap
 map("n", "<leader>0", ":DapContinue<CR>")
@@ -66,16 +76,14 @@ map("n", "<leader>9", ":DapStepOut<CR>")
 map("n", "<leader>-", ":DapDisconnect<CR>")
 -->
 
---< Telescope
-local builtin = require 'telescope.builtin'
+--< fzf
+local fzf = require("fzf-lua")
 
-map('n', '<leader>ff', builtin.find_files, {})
-map('n', '<leader>f', builtin.current_buffer_fuzzy_find, {})
-map('n', '<leader>fz', builtin.live_grep, {})
-map('n', 'gr', builtin.lsp_references, {})
-map('n', 'gt', builtin.lsp_type_definitions, {})
-map('n', 'gi', builtin.lsp_implementations, {})
-map('n', 'gd', builtin.lsp_definitions, {})
+map('n', '<leader>ff', fzf.files)
+map('n', '<leader>fz', fzf.live_grep)
+map('n', 'gd', fzf.lsp_definitions)
+map('n', 'gi', fzf.lsp_implementations)
+map('n', 'gR', fzf.lsp_references, {})
 -->
 
 --> Golang

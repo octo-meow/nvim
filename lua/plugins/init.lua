@@ -1,5 +1,12 @@
 return {
-	{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+	{ "catppuccin/nvim",            name = "catppuccin", priority = 1000 },
+	{ "sainnhe/sonokai" },
+	{ "projekt0n/github-nvim-theme" },
+	{ "Mofiqul/vscode.nvim" },
+	{ "joshdick/onedark.vim" },
+	{ "ellisonleao/gruvbox.nvim",   priority = 1000,     config = true },
+	{ 'marko-cerovac/material.nvim' },
+	{ 'tomasiser/vim-code-dark' },
 	{
 		"folke/tokyonight.nvim",
 		lazy = false,
@@ -30,24 +37,6 @@ return {
 				},
 			},
 		},
-	},
-	{
-		'nvim-telescope/telescope.nvim',
-		tag = 'v0.2.1',
-		dependencies = {
-			'nvim-lua/plenary.nvim',
-			{ 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
-		},
-		config = function()
-			require('telescope').setup({
-				pickers = {
-					find_files = {
-						hidden = true,
-						no_ignore = false,
-					}
-				}
-			})
-		end
 	},
 	{
 		'stevearc/conform.nvim',
@@ -110,39 +99,11 @@ return {
 		opts = require "configs.blink",
 	},
 	{
-		"nvim-tree/nvim-tree.lua",
+		'akinsho/bufferline.nvim',
 		version = "*",
-		lazy = false,
-		dependencies = {
-			"nvim-tree/nvim-web-devicons",
-		},
+		dependencies = 'nvim-tree/nvim-web-devicons',
 		config = function()
-			require("nvim-tree").setup {
-				filters = {
-					dotfiles = false,
-				},
-				disable_netrw = true,
-				hijack_cursor = true,
-				sync_root_with_cwd = true,
-				respect_buf_cwd = true,
-				view = {
-					width = 30,
-					preserve_window_proportions = true,
-				},
-				git = {
-					enable = true,
-					ignore = false,
-				}, diagnostics = {
-				enable = true,
-				show_on_dirs = true,
-				show_on_open_dirs = true,
-				debounce_delay = 100,
-				severity = {
-					min = vim.diagnostic.severity.ERROR,
-					max = vim.diagnostic.severity.ERROR,
-				},
-			},
-			}
+			require("bufferline").setup({})
 		end,
 	},
 	{
@@ -151,22 +112,88 @@ return {
 		opts = require "configs.snacks",
 	},
 	{
-		"okuuva/auto-save.nvim",
-		version = "^1.0.0",
-		event = { "InsertLeave", "TextChanged" },
-		opts = {
-			trigger_events = {
-				immediate_save = { "BufLeave", "FocusLost", "QuitPre", "VimSuspend" },
-				defer_save = {},
+		"folke/trouble.nvim",
+		opts = {}, -- for default options, refer to the configuration section for custom setup.
+		cmd = "Trouble",
+		keys = {
+			{
+				"<leader>fl",
+				"<cmd>Trouble diagnostics toggle<cr>",
+				desc = "Diagnostics (Trouble)",
 			},
-			debounce_delay = 2000,
 		},
 	},
 	{
-		"kylechui/nvim-surround",
-		version = "*",
-		event = "VeryLazy",
-		opts = {},
+		url = "https://codeberg.org/andyg/leap.nvim",
+		config = function()
+			local leap = require('leap')
+			leap.setup({
+				safe_labels = {},
+				max_phase_one_targets = 0,
+				max_hightlighted_traversal_targets = 10,
+				lables = 'jklasdfghqwertyuipzxcvbnm',
+				equivalence_classes = { " \t\r\n", "([{", "}])", "'\"`" },
+			})
+			vim.keymap.set({ 'n', 'x', 'o' }, 's', '<Plug>(leap)')
+			vim.keymap.set({ 'n', 'o' }, 'r', function()
+				require('leap.remote').action()
+			end)
+		end
+	},
+	{
+		"nvim-neotest/neotest",
+		dependencies = {
+			"nvim-neotest/neotest-go",
+			-- Your other test adapters here
+		},
+		config = function()
+			-- get neotest namespace (api call creates or returns namespace)
+			local neotest_ns = vim.api.nvim_create_namespace("neotest")
+			vim.diagnostic.config({
+				virtual_text = {
+					format = function(diagnostic)
+						local message =
+								diagnostic.message:gsub("\n", " "):gsub("\t", " "):gsub("%s+", " "):gsub("^%s+", "")
+						return message
+					end,
+				},
+			}, neotest_ns)
+			require("neotest").setup({
+				-- your neotest config here
+				adapters = {
+					require("neotest-go"),
+				},
+			})
+		end,
+	},
+	{
+		"christoomey/vim-tmux-navigator",
+		keys = {
+			{ "<c-h>",  "<cmd><C-B>TmuxNavigateLeft<cr>" },
+			{ "<c-j>",  "<cmd><C-B>TmuxNavigateDown<cr>" },
+			{ "<c-k>",  "<cmd><C-B>TmuxNavigateUp<cr>" },
+			{ "<c-l>",  "<cmd><C-B>TmuxNavigateRight<cr>" },
+			{ "<c-\\>", "<cmd><C-B>TmuxNavigatePrevious<cr>" },
+		},
+	},
+	{
+		"ibhagwan/fzf-lua",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+
+		config = function()
+			-- local fzf = require("fzf-lua")
+			-- fzf.setup({})
+			require("fzf-lua").setup({})
+			-- vim.keymap.set('n', '<leader>ff', fzf.files)
+		end,
+
+		-- or if using mini.icons/mini.nvim
+		-- dependencies = { "nvim-mini/mini.icons" },
+		---@module "fzf-lua"
+		---@type fzf-lua.Config|{}
+		---@diagnostic disable: missing-fields
+		opts = {}
+		---@diagnostic enable: missing-fields
 	},
 	{
 		"lewis6991/gitsigns.nvim",
@@ -180,14 +207,10 @@ return {
 		ft = "go",
 		cmd = { "GosignsEnable", "GosignsDisable", "GosignsToggle" },
 	},
-	-- {
-	-- 	'akinsho/bufferline.nvim',
-	-- 	version = "*",
-	-- 	dependencies = 'nvim-tree/nvim-web-devicons',
-	-- 	config = function()
-	-- 		require("configs.bufferline")
-	-- 	end,
-	-- },
+	{
+		"theHamsta/nvim-dap-virtual-text",
+		opts = {},
+	},
 	{
 		"rmagatti/auto-session",
 		lazy = false,
@@ -201,11 +224,88 @@ return {
 		},
 	},
 	{
-		'nvim-mini/mini.statusline',
-		version = '*',
+		-- status line
+		"nvim-lualine/lualine.nvim",
 		config = function()
-			require("mini.statusline").setup({})
-		end
+			require("lualine").setup({
+				options = {
+					theme = custom_theme,
+					component_separators = "",
+					icons_enabled = true,
+					globalstatus = true,
+					always_show_tabline = true,
+					disabled_filetypes = { "Quickfix", "dashboard", "NvimTree", "Outline" },
+				},
+				sections = {
+					lualine_a = {
+						{
+							"mode",
+							fmt = function(str)
+								local extra = "       "
+								str = str .. extra
+								return str:sub(1, 7)
+							end,
+						},
+					},
+					lualine_b = {
+						{
+							"branch",
+						},
+						{
+							"diagnostics",
+							sources = { "nvim_workspace_diagnostic" },
+						},
+					},
+					lualine_c = {
+						{
+							'filename',
+							path = 1,
+						},
+					},
+					lualine_y = {
+					},
+					lualine_z = {},
+				},
+			})
+		end,
+	},
+	{
+		{
+			"nvim-neotest/neotest",
+			dependencies = {
+				"nvim-neotest/nvim-nio",
+				"nvim-lua/plenary.nvim",
+				"antoinemadec/FixCursorHold.nvim",
+				{
+					"nvim-treesitter/nvim-treesitter", -- Optional, but recommended
+					branch = "main",              -- NOTE; not the master branch!
+					build = function()
+						vim.cmd(":TSUpdate go")
+					end,
+				},
+				{
+					"fredrikaverpil/neotest-golang",
+					version = "*",                                                      -- Optional, but recommended; track releases
+					build = function()
+						vim.system({ "go", "install", "gotest.tools/gotestsum@latest" }):wait() -- Optional, but recommended
+					end,
+				},
+			},
+			config = function()
+				local config = {
+					runner = "gotestsum", -- Optional, but recommended
+				}
+				require("neotest").setup({
+					adapters = {
+						require("neotest-golang")(config),
+					},
+				})
+			end,
+		},
+	},
+	{
+		"OXY2DEV/markview.nvim",
+		lazy = false,
 	},
 	{
 		"sindrets/diffview.nvim",
@@ -218,50 +318,12 @@ return {
 	{
 		"mikavilpas/yazi.nvim",
 		version = "*", -- use the latest stable version
-		event = "VeryLazy",
 		dependencies = {
-			{ "nvim-lua/plenary.nvim", lazy = true },
+			{ "nvim-lua/plenary.nvim", lazy = false },
 		},
-		keys = {
-			-- 👇 in this section, choose your own keymappings!
-			{
-				"<leader>;",
-				mode = { "n", "v" },
-				"<cmd>Yazi<cr>",
-				desc = "Open yazi at the current file",
-			},
-			{
-				-- Open in the current working directory
-				"<leader>cw",
-				"<cmd>Yazi cwd<cr>",
-				desc = "Open the file manager in nvim's working directory",
-			},
-			{
-				"<c-up>",
-				"<cmd>Yazi toggle<cr>",
-				desc = "Resume the last yazi session",
-			},
-		},
-		---@type YaziConfig | {}
-		opts = {
-			-- if you want to open yazi instead of netrw, see below for more info
-			open_for_directories = false,
-			keymaps = {
-				show_help = "<f1>",
-			},
-		},
-		-- 👇 if you use `open_for_directories=true`, this is recommended
+		opts = {},
 		init = function()
-			-- mark netrw as loaded so it's not loaded at all.
-			--
-			-- More details: https://github.com/mikavilpas/yazi.nvim/issues/802
 			vim.g.loaded_netrwPlugin = 1
 		end,
 	},
-	{
-		"ThePrimeagen/harpoon",
-		config = function()
-			require("harpoon").setup({})
-		end
-	}
 }

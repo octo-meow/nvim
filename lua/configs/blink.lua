@@ -36,8 +36,6 @@ return {
 			["<esc>"] = { "cancel", "fallback" },
 			["<C-y>"] = { "accept", "fallback" },
 
-			["<C-j>"] = { "select_next", "fallback" },
-			["<C-k>"] = { "select_prev", "fallback" },
 			["<Tab>"] = { "select_next", "fallback" },
 			["<S-Tab>"] = { "select_prev", "fallback" },
 
